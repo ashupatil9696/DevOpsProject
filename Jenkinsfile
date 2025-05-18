@@ -19,6 +19,7 @@ pipeline {
         stage ('stop existing container'){
             steps{
                 sh 'docker container stop business-app'
+                sh 'docker container remove business-app'
             }
         }
         
