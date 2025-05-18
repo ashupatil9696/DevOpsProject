@@ -4,12 +4,6 @@ pipeline {
     }
 
     stages {
-        stage('git checkout') {
-            steps {
-                git url:'https://github.com/ashupatil9696/DevOpsProject.git', branch: 'main'
-            }
-        }
-        
         stage('build jar') {
             steps {
                 sh 'mvn clean install package -DskipTests'
@@ -19,6 +13,12 @@ pipeline {
         stage('build docker image') {
             steps {
                 sh 'docker build -t business-app:v1 .'
+            }
+        }
+
+        stage ('stop existing container'){
+            steps{
+                sh 'docker container stop business-app'
             }
         }
         
