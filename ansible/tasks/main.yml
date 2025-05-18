@@ -1,0 +1,66 @@
+- name: Install required packages
+  ansible.builtin.yum:
+    name: "{{ item }}"
+    state: present
+  loop:
+    - git
+    - java-17-amazon-corretto-devel
+    - maven
+    - docker
+
+- name: Start and enable Docker
+  ansible.builtin.service:
+    name: docker
+    state: started
+    enabled: yes
+
+- name: Add ec2-user to docker group
+  ansible.builtin.user:
+    name: ec2-user
+    groups: docker
+    append: yes
+
+- name: Pull MySQL Docker image
+  community.docker.docker_image:
+    name: mysql
+    source: pull
+
+- name: Run MySQL Docker container
+  community.docker.docker_container:
+    name: "{{ mysql_container_name }}"
+    image: mysql
+    state: started
+    restart_policy: always
+    env:
+      MYSQL_ROOT_PASSWORD: "{{ mysql_root_password }}"
+      MYSQL_DATABASE: "{{ mysql_database }}"
+    ports:
+      - "3306:3306"
+
+- name: Clone the git repository
+  git:
+    repo: 'https://github.com/ashupatil9696/DevOpsProject.git'
+    dest: /opt/yourapp
+    version: main
+    update: yes
+    force: yes
+
+- name: Build the JAR file with Maven
+  command: mvn clean install package -DskipTests
+  args:
+    chdir: /opt/yourapp
+  register: maven_output
+  ignore_errors: no
+
+- name: Print Maven output if failed
+  debug:
+    var: maven_output.stderr_lines
+  when: maven_output.rc != 0
+
+- name: Build docker image
+  command: docker build -t myapp:v1 .
+  args:
+    chdir: /opt/yourapp
+
+- name: Run docker image
+  command: docker run --name myapp -p 2330:2330 -d myapp:v1

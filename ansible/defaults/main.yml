@@ -1,0 +1,7 @@
+---
+# defaults file for buisnes
+
+mysql_root_password: Ashu@6000
+mysql_database: businessproject
+mysql_container_name: mysql_container
+

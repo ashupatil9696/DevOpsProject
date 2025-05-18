@@ -1,0 +1,7 @@
+---
+- name: Set up development environment with Docker, Git, Java, Maven, and MySQL
+  hosts: all
+  become: yes
+
+  roles:
+    - buisness
