@@ -4,7 +4,11 @@ pipeline {
     }
 
     stages {
-        
+        stage('git checkout') {
+            steps {
+                git url:'https://github.com/ashupatil9696/DevOpsProject.git', branch: 'main'
+            }
+        }
         
         stage('build jar') {
             steps {
